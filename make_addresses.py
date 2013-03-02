@@ -8,6 +8,9 @@ Get fresh inputs with:
 
 import csv
 import math
+import datetime
+import os
+import sys
 
 mary = dict(
     longitude=-77.620369,
@@ -19,7 +22,13 @@ origin = mary
 
 def gather_rows():
     results = []
-    with open('foreclosures-2013-03-01.csv', 'rb') as csvfile:
+    fname = 'foreclosures-%s.csv' % datetime.datetime.now().strftime("%F")
+    if not os.path.exists(fname):
+        print fname, "does not exist.  Try:"
+        print "", "wget http://monroe-threebean.rhcloud.com/export.csv -O", fname
+        sys.exit(1)
+
+    with open(fname, 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter="|")
         rows = [row for row in reader]
         headers, rows = rows[0], rows[1:]
@@ -47,7 +56,9 @@ def write_csv(rows, suffix):
         'assessed_value', 'latitude', 'longitude']
     rows = [headers] + [[row[key] for key in headers] for row in rows]
 
-    fname = 'output-%s.csv' % suffix
+    week_number = datetime.datetime.now().isocalendar()[1]
+    year = datetime.datetime.now().year
+    fname = 'output/week-%02i-%s-%s.csv' % (week_number, year, suffix)
     print "  Writing", fname
     with open(fname, 'w') as csvfile:
         writer = csv.writer(csvfile)
