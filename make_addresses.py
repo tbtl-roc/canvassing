@@ -115,6 +115,6 @@ def for_today():
         for sublist in list_of_lists
     ]
     for i, sublist in enumerate(list_of_lists):
-        write_csv(rows, suffix="team-%i" % i)
+        write_csv(sublist, suffix="team-%i" % i)
 
 for_today()
