@@ -31,7 +31,9 @@ def write_csv(rows, suffix):
         'assessed_value', 'latitude', 'longitude']
     rows = [headers] + [[row[key] for key in headers] for row in rows]
 
-    with open('output-%s.csv' % suffix, 'w') as csvfile:
+    fname = 'output-%s.csv' % suffix
+    print "  Writing", fname
+    with open(fname, 'w') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(rows)
 
@@ -104,6 +106,8 @@ def for_today():
 
     # Break into N teams
     list_of_lists = split_into_groups(rows, N)
+    list_of_lists = [lst for lst in list_of_lists if lst]
+    print "Down to", len(list_of_lists), "lists"
 
     # Sort each team's list by distance from the origin location.
     list_of_lists = [
