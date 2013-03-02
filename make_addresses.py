@@ -1,4 +1,10 @@
-""" Script for producing "walk sheets" for weekly canvassing. """
+""" Script for producing "walk sheets" for weekly canvassing.
+
+Get fresh inputs with:
+
+    $ wget http://monroe-threebean.rhcloud.com/export.csv
+
+"""
 
 import csv
 import math
