@@ -1,8 +1,40 @@
-""" Script for producing "walk sheets" for weekly canvassing.
+""" This is the main script for producing "walk sheets" for weekly canvassing.
 
-Get fresh inputs with:
+It takes the full list of foreclosures as its input.  You can get that file
+(on Linux) with the following command.
 
     $ wget http://monroe-threebean.rhcloud.com/export.csv
+
+It also requires another file "alltime-knowledge.csv" which is just a list of
+addresses and our notes about them.. "should we canvas this house again?
+should we not?""
+
+As it stands now, this program does the following things (in order):
+
+    - Read in all the foreclosures.
+    - Read in a database of our notes about addresses (i.e.)
+
+      - Merge our notes in with the latest foreclosure dump from the cloud.
+      - Mark new foreclosures we haven't seen before as "unvisited"
+
+    - Discard all foreclosures not in the 14621 zip code.
+    - Sort the foreclosures, newest ones first.
+    - Discard everything but the latest 100 foreclosures (in 14621).
+    - Break those latest foreclosures up amongst N teams (like 3 or 4 teams)
+
+      - Do that by drawing a circle around the central house we're focusing on.
+        Divide that circle up like pie slices (triangle wedges).  If we have 3
+        teams, then three equal slices.  Four teams, then four equal slices.
+      - All the addresses that fall into each slice are assigned to the
+        different teams.
+
+    - Finally, for each team's new list.  Sort those by the distances from the
+      central address.  So each team will start at the center of the circle,
+      and make their way out to the edge of the pie.
+    - Write those lists out to files in an ``output/`` directory.  Name each
+      team's file including the week of the year (so we can keep track of them
+      over time).  They're named something like
+      ``output/week-10-2013-team-0.csv`` and ``output/week-10-2013-team-1.csv``
 
 """
 
