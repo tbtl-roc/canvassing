@@ -44,6 +44,20 @@ def as_the_crow_flies(entry):
     )
 
 
+def _quadrant_fudge(row):
+    # http://www.mathsisfun.com/polar-cartesian-coordinates.html
+    if row['normalized_latitude'] > 0:
+        if row['normalized_longitude'] > 0:
+            return 0  # Quadrant I
+        else:
+            return math.pi  # Quadrant II
+    else:
+        if row['normalized_longitude'] > 0:
+            return math.pi  # Quadrant III
+        else:
+            return 2 * math.pi  # Quadrant IV
+
+
 def split_into_groups_by_polar_coordinates(rows, N=1):
     """ Take a list of rows, and split it into N groups. """
     results = [list() for i in range(N)]
@@ -61,15 +75,13 @@ def split_into_groups_by_polar_coordinates(rows, N=1):
             row['normalized_latitude'] / row['normalized_longitude']
         )
 
+        row['theta'] = row['theta'] + _quadrant_fudge(row)
+        while row['theta'] > (2 * math.pi):
+            row['theta'] -= (2 * math.pi)
+
         # Use theta to put each row in one of N buckets
         i = int(row['theta'] / (2 * math.pi) * N)
         results[i].append(row)
-        print "(%f, %f) -> (%f, %f)" % (
-            row['normalized_longitude'],
-            row['normalized_latitude'],
-            row['r'],
-            row['theta']
-        )
 
     print "Split into groups like:", map(len, results)
     return results
@@ -80,10 +92,13 @@ split_into_groups = split_into_groups_by_polar_coordinates
 
 def for_today():
     # expect there to be this many teams
-    N = 4
+    N = 10
 
     rows = gather_rows()
-    rows = [row for row in rows if '14621' in row['formatted_address']]
+    rows = [
+        row for row in rows
+        if '14621' in row['formatted_address']
+    ]
     rows = sorted(rows, lambda b, a: cmp(a['filing_date'], b['filing_date']))
     rows = rows[:100]
 
