@@ -18,22 +18,32 @@ origin = mary
 
 
 def gather_rows():
-    with open('foreclosures-2013-02-13.csv', 'rb') as csvfile:
+    results = []
+    with open('foreclosures-2013-03-01.csv', 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter="|")
         rows = [row for row in reader]
         headers, rows = rows[0], rows[1:]
-        results = [dict(zip(headers, row)) for row in rows]
+        results.extend([dict(zip(headers, row)) for row in rows])
 
         for row in results:
             row['longitude'] = float(row['longitude'])
             row['latitude'] = float(row['latitude'])
 
-        return results
+    with open('alltime-knowledge.csv', 'rb') as csvfile:
+        reader = csv.reader(csvfile, delimiter=",")
+        rows = [row for row in reader]
+        headers, rows = rows[0], rows[1:]
+        knowledge = dict(rows)
+
+    for row in results:
+        row['code'] = knowledge.get(row['formatted_address'], 'unvisited')
+
+    return results
 
 
 def write_csv(rows, suffix):
     headers = [
-        'formatted_address', 'grantee', 'grantor', 'filing_date',
+        'code', 'formatted_address', 'grantee', 'grantor', 'filing_date',
         'assessed_value', 'latitude', 'longitude']
     rows = [headers] + [[row[key] for key in headers] for row in rows]
 
