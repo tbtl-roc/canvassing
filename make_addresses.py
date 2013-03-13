@@ -44,6 +44,8 @@ import datetime
 import os
 import sys
 
+import distances
+
 mary = dict(
     longitude=-77.620369,
     latitude=43.184189,
@@ -162,6 +164,9 @@ def for_today():
     ]
     rows = sorted(rows, lambda b, a: cmp(a['filing_date'], b['filing_date']))
     rows = rows[:100]
+
+    cache = distances.DistanceCache()
+    cache.update(rows)
 
     # Break into N teams
     list_of_lists = split_into_groups(rows, N)
