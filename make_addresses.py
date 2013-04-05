@@ -73,6 +73,7 @@ def gather_rows():
     with open('alltime-knowledge.csv', 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=",")
         rows = [row for row in reader]
+        rows = [row[0:2] for row in rows]
         headers, rows = rows[0], rows[1:]
         knowledge = dict(rows)
 
