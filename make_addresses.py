@@ -156,6 +156,18 @@ metric = as_the_crow_flies
 split_into_groups = split_into_groups_by_polar_coordinates
 
 
+def merge_smallest_into_second_smallest(list_of_lists):
+    """ Take the smallest team and merge it into the second smallest team. """
+    lengths = map(len, list_of_lists)
+    index_of_first_smallest = lengths.index(min(lengths))
+    lengths.pop(index_of_first_smallest)
+    index_of_second_smallest = lengths.index(min(lengths))
+
+    smallest = list_of_lists.pop(index_of_first_smallest)
+    list_of_lists[index_of_second_smallest] += smallest
+    return list_of_lists
+
+
 def for_today():
     # expect there to be this many teams
     N = 10
@@ -172,6 +184,8 @@ def for_today():
     list_of_lists = split_into_groups(rows, N)
     list_of_lists = [lst for lst in list_of_lists if lst]
     print "Down to", len(list_of_lists), "lists"
+
+    list_of_lists = merge_smallest_into_second_smallest(list_of_lists)
 
     # Sort each team's list by distance from the origin location.
     list_of_lists = [
