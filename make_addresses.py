@@ -17,8 +17,8 @@ As it stands now, this program does the following things (in order):
       - Merge our notes in with the latest foreclosure dump from the cloud.
       - Mark new foreclosures we haven't seen before as "unvisited"
 
-    - Discard all foreclosures not in the 14621 zip code.
     - Sort the foreclosures, newest ones first.
+    - Discard all foreclosures not in the 14621 zip code.
     - Discard everything but the latest 100 foreclosures (in 14621).
     - Break those latest foreclosures up amongst N teams (like 3 or 4 teams)
 
@@ -28,9 +28,8 @@ As it stands now, this program does the following things (in order):
       - All the addresses that fall into each slice are assigned to the
         different teams.
 
-    - Finally, for each team's new list.  Sort those by the distances from the
-      central address.  So each team will start at the center of the circle,
-      and make their way out to the edge of the pie.
+    - Finally, for each team's new list.  Sort those by "travelling salesman"
+      logic.
     - Write those lists out to files in an ``output/`` directory.  Name each
       team's file including the week of the year (so we can keep track of them
       over time).  They're named something like
