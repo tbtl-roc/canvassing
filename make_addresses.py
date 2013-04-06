@@ -194,31 +194,48 @@ def merge_smallest_into_second_smallest(list_of_lists):
     return list_of_lists
 
 
-def for_today():
+def should_be_included(row):
+    """ Criteria for whether or not we should canvas an address """
+    return all([
+        # All of these must be true
+        '14621' in row['formatted_address']
+    ]) and any([
+        # At least one of these must be true
+        'unvisited' == row['code'],
+        'should return' in row['code'],
+    ])
+
+
+def main():
+    """ Main entry point.  Read, organize, write. """
+
     # expect there to be this many teams
     N = 10
 
     rows = gather_rows()
-    rows = [
-        row for row in rows
-        if '14621' in row['formatted_address']
-    ]
     rows = sorted(rows, lambda b, a: cmp(a['filing_date'], b['filing_date']))
+
+    # Throw out rows that are not "unvisited" or whatever.
+    rows = filter(should_be_included, rows)
+
+    # Take only the first 100 properties
     rows = rows[:100]
 
     # Break into N teams
     list_of_lists = split_into_groups(rows, N)
     list_of_lists = [lst for lst in list_of_lists if lst]
-    print "Down to", len(list_of_lists), "lists"
+    print " * Down to", len(list_of_lists), "lists"
 
-    list_of_lists = merge_smallest_into_second_smallest(list_of_lists)
+    # Just get rid of our smallest N teams.
+    num_merges = 2
+    for i in range(num_merges):
+        list_of_lists = merge_smallest_into_second_smallest(list_of_lists)
 
-    # Sort each team's list by distance from the origin location.
-    list_of_lists = [
-        sort_with_tsp(sublist)
-        for sublist in list_of_lists
-    ]
+    # Sort each team's list travelling salesman style.
+    list_of_lists = map(sort_with_tsp, list_of_lists)
+
     for i, sublist in enumerate(list_of_lists):
         write_csv(sublist, suffix="team-%i" % i)
 
-for_today()
+if __name__ == '__main__':
+    main()
