@@ -44,6 +44,8 @@ import datetime
 import os
 import sys
 
+from lib.greedy_tsp import solve_tsp
+
 mary = dict(
     longitude=-77.620369,
     latitude=43.184189,
@@ -156,6 +158,22 @@ metric = as_the_crow_flies
 split_into_groups = split_into_groups_by_polar_coordinates
 
 
+def sort_with_tsp(sublist):
+    # Sort dumbly first to help out.
+    sublist = sorted(sublist, lambda a, b: cmp(metric(a), metric(b)))
+
+    # First, build a square matrix of the distances between all addrs.
+    G = [[
+        distance(sublist[i], sublist[j]) for j in range(len(sublist))
+    ] for i in range(len(sublist))]
+
+    # tsp that.
+    indices = solve_tsp(G)
+
+    # Nasty!
+    return map(sublist.__getitem__, indices)
+
+
 def merge_smallest_into_second_smallest(list_of_lists):
     """ Take the smallest team and merge it into the second smallest team. """
     lengths = map(len, list_of_lists)
@@ -189,7 +207,7 @@ def for_today():
 
     # Sort each team's list by distance from the origin location.
     list_of_lists = [
-        sorted(sublist, lambda a, b: cmp(metric(a), metric(b)))
+        sort_with_tsp(sublist)
         for sublist in list_of_lists
     ]
     for i, sublist in enumerate(list_of_lists):
