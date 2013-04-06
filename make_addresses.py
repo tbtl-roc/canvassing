@@ -44,6 +44,8 @@ import datetime
 import os
 import sys
 
+from lib.greedy_tsp import solve_tsp
+
 mary = dict(
     longitude=-77.620369,
     latitude=43.184189,
@@ -98,12 +100,16 @@ def write_csv(rows, suffix):
         writer.writerows(rows)
 
 
+def distance(a, b):
+    return math.sqrt(
+        (a['longitude'] - b['longitude'])**2 +
+        (a['latitude'] - b['latitude'])**2
+    )
+
+
 def as_the_crow_flies(entry):
     """ The distance formula is oldschool. """
-    return math.sqrt(
-        (entry['longitude'] - origin['longitude'])**2 +
-        (entry['latitude'] - origin['latitude'])**2
-    )
+    return distance(entry, origin)
 
 
 def _quadrant_fudge(row):
@@ -152,6 +158,34 @@ metric = as_the_crow_flies
 split_into_groups = split_into_groups_by_polar_coordinates
 
 
+def sort_with_tsp(sublist):
+    # Sort dumbly first to help out.
+    sublist = sorted(sublist, lambda a, b: cmp(metric(a), metric(b)))
+
+    # First, build a square matrix of the distances between all addrs.
+    G = [[
+        distance(sublist[i], sublist[j]) for j in range(len(sublist))
+    ] for i in range(len(sublist))]
+
+    # tsp that.
+    indices = solve_tsp(G)
+
+    # Nasty!
+    return map(sublist.__getitem__, indices)
+
+
+def merge_smallest_into_second_smallest(list_of_lists):
+    """ Take the smallest team and merge it into the second smallest team. """
+    lengths = map(len, list_of_lists)
+    index_of_first_smallest = lengths.index(min(lengths))
+    lengths.pop(index_of_first_smallest)
+    index_of_second_smallest = lengths.index(min(lengths))
+
+    smallest = list_of_lists.pop(index_of_first_smallest)
+    list_of_lists[index_of_second_smallest] += smallest
+    return list_of_lists
+
+
 def for_today():
     # expect there to be this many teams
     N = 10
@@ -169,9 +203,11 @@ def for_today():
     list_of_lists = [lst for lst in list_of_lists if lst]
     print "Down to", len(list_of_lists), "lists"
 
+    list_of_lists = merge_smallest_into_second_smallest(list_of_lists)
+
     # Sort each team's list by distance from the origin location.
     list_of_lists = [
-        sorted(sublist, lambda a, b: cmp(metric(a), metric(b)))
+        sort_with_tsp(sublist)
         for sublist in list_of_lists
     ]
     for i, sublist in enumerate(list_of_lists):
