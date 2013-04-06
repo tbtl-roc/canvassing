@@ -52,6 +52,8 @@ mary = dict(
 
 origin = mary
 
+MAXIMUM_TEAM_SIZE = 25
+
 
 def gather_rows():
     results = []
@@ -156,6 +158,7 @@ def split_into_groups_by_polar_coordinates(rows, N=1):
         results[i].append(row)
 
     print "Split into groups like:", map(len, results)
+
     return results
 
 metric = as_the_crow_flies
@@ -232,6 +235,11 @@ def main():
 
     # Sort each team's list travelling salesman style.
     list_of_lists = map(sort_with_tsp, list_of_lists)
+
+    # Also limit the teams to *at most* N addresses.
+    list_of_lists = [lst[:MAXIMUM_TEAM_SIZE] for lst in list_of_lists]
+
+    print "Limited to groups like:", map(len, list_of_lists)
 
     for i, sublist in enumerate(list_of_lists):
         write_csv(sublist, suffix="team-%i" % i)
