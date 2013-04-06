@@ -98,12 +98,16 @@ def write_csv(rows, suffix):
         writer.writerows(rows)
 
 
+def distance(a, b):
+    return math.sqrt(
+        (a['longitude'] - b['longitude'])**2 +
+        (a['latitude'] - b['latitude'])**2
+    )
+
+
 def as_the_crow_flies(entry):
     """ The distance formula is oldschool. """
-    return math.sqrt(
-        (entry['longitude'] - origin['longitude'])**2 +
-        (entry['latitude'] - origin['latitude'])**2
-    )
+    return distance(entry, origin)
 
 
 def _quadrant_fudge(row):
