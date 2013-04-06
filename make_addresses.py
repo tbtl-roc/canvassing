@@ -101,6 +101,7 @@ def write_csv(rows, suffix):
 
 
 def distance(a, b):
+    """ Oldschool """
     return math.sqrt(
         (a['longitude'] - b['longitude'])**2 +
         (a['latitude'] - b['latitude'])**2
@@ -108,7 +109,7 @@ def distance(a, b):
 
 
 def as_the_crow_flies(entry):
-    """ The distance formula is oldschool. """
+    """ This returns the arial distance of an address from our epicenter """
     return distance(entry, origin)
 
 
@@ -127,7 +128,11 @@ def _quadrant_fudge(row):
 
 
 def split_into_groups_by_polar_coordinates(rows, N=1):
-    """ Take a list of rows, and split it into N groups. """
+    """ Take a list of rows, and split it into N groups.
+
+    Like slices of a pie or a pizza.
+    """
+
     results = [list() for i in range(N)]
     for row in rows:
         # normalize each row
@@ -159,6 +164,8 @@ split_into_groups = split_into_groups_by_polar_coordinates
 
 
 def sort_with_tsp(sublist):
+    """ Sort a shortlist of addresses with travelling salesman logic """
+
     # Sort dumbly first to help out.
     sublist = sorted(sublist, lambda a, b: cmp(metric(a), metric(b)))
 
@@ -176,6 +183,7 @@ def sort_with_tsp(sublist):
 
 def merge_smallest_into_second_smallest(list_of_lists):
     """ Take the smallest team and merge it into the second smallest team. """
+
     lengths = map(len, list_of_lists)
     index_of_first_smallest = lengths.index(min(lengths))
     lengths.pop(index_of_first_smallest)
