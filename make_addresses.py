@@ -161,8 +161,29 @@ def split_into_groups_by_polar_coordinates(rows, N=1):
 
     return results
 
+def split_into_groups_by_k_means(rows, N=1):
+    """ Split into groups by kmeans clustering.  Smart. """
+
+    print "Splitting into %r groups with kmeans clustering." % N
+
+    import numpy
+    import scipy.cluster.vq
+
+    data = numpy.matrix([
+        (row['latitude'], row['longitude']) for row in rows
+    ]).getA()
+
+    centroids, idx = scipy.cluster.vq.kmeans2(data, N)
+
+    teams = [[] for i in range(N)]
+    for i, index in enumerate(idx):
+        teams[index].append(rows[i])
+
+    return teams
+
 metric = as_the_crow_flies
-split_into_groups = split_into_groups_by_polar_coordinates
+#split_into_groups = split_into_groups_by_polar_coordinates
+split_into_groups = split_into_groups_by_k_means
 
 
 def sort_with_tsp(sublist):
@@ -229,7 +250,7 @@ def main():
     print " * Down to", len(list_of_lists), "lists"
 
     # Just get rid of our smallest N teams.
-    num_merges = 2
+    num_merges = 0
     for i in range(num_merges):
         list_of_lists = merge_smallest_into_second_smallest(list_of_lists)
 
