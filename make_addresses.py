@@ -233,7 +233,7 @@ def main():
     """ Main entry point.  Read, organize, write. """
 
     # expect there to be this many teams
-    N = 10
+    N = 4
 
     rows = gather_rows()
     rows = sorted(rows, lambda b, a: cmp(a['filing_date'], b['filing_date']))

@@ -17,9 +17,11 @@ def main(filename):
     results = read_in_addresses(filename)
 
     print
-    print " ** Copy and paste this into https://maps.google.com/ ** "
+    print " ** Copy and paste this into your browser."
     print
-    print "from: " + " to: ".join(results)
+    query = "from: " + " to: ".join(results)
+    url = "https://maps.google.com/maps?q=" + query.replace(' ', '+')
+    print url
 
 
 if __name__ == '__main__':
