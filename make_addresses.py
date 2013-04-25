@@ -225,7 +225,7 @@ def should_be_included(row):
     ]) and any([
         # At least one of these must be true
         'unvisited' == row['code'],
-        'should return' in row['code'],
+        'should return' in row['code'].lower(),
     ])
 
 
