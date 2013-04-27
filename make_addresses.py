@@ -44,6 +44,7 @@ import datetime
 import os
 import sys
 
+from lib.map_query import make_map_query
 from lib.greedy_tsp import solve_tsp
 
 mary = dict(
@@ -99,6 +100,7 @@ def write_csv(rows, suffix):
         writer = csv.writer(csvfile)
         writer.writerows(rows)
 
+    return fname
 
 def distance(a, b):
     """ Oldschool """
@@ -312,8 +314,12 @@ def main():
 
     print "Limited to groups like:", map(len, list_of_lists)
 
+    filenames = []
     for i, sublist in enumerate(list_of_lists):
-        write_csv(sublist, suffix="team-%i" % i)
+        filenames.append(write_csv(sublist, suffix="team-%i" % i))
+
+    for filename in filenames:
+        make_map_query(filename)
 
 if __name__ == '__main__':
     main()

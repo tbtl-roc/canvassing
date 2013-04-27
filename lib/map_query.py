@@ -13,10 +13,11 @@ def read_in_addresses(filename):
     return [row['formatted_address'] for row in results]
 
 
-def main(filename):
+def make_map_query(filename):
     results = read_in_addresses(filename)
 
     print
+    print " ** Map URL for", filename
     print " ** Copy and paste this into your browser."
     print
     query = "from: " + " to: ".join(results)
@@ -25,4 +26,4 @@ def main(filename):
 
 
 if __name__ == '__main__':
-    main(sys.argv[-1])
+    make_map_query(sys.argv[-1])
