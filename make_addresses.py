@@ -37,6 +37,7 @@ As it stands now, this program does the following things (in order):
 
 """
 
+import argparse
 import csv
 import math
 import datetime
@@ -51,8 +52,6 @@ mary = dict(
 )
 
 origin = mary
-
-MAXIMUM_TEAM_SIZE = 25
 
 
 def gather_rows():
@@ -217,48 +216,99 @@ def merge_smallest_into_second_smallest(list_of_lists):
     return list_of_lists
 
 
-def should_be_included(row):
-    """ Criteria for whether or not we should canvas an address """
-    return all([
-        # All of these must be true
-        '14621' in row['formatted_address']
-    ]) and any([
-        # At least one of these must be true
-        'unvisited' == row['code'],
-        'should return' in row['code'].lower(),
-    ])
+def make_criteria_func(zipcodes, canvass_codes):
+    """ Function factory """
+
+    # First, convert comma-delimited strings into lists
+    zipcodes = [code.strip() for code in zipcodes.split(',')]
+    canvass_codes = [code.strip() for code in canvass_codes.split(',')]
+
+    # Then, make a callback function that uses those criteria to filter addrs
+    def criteria_func(row):
+        """ Criteria for whether or not we should canvas an address """
+        return any([
+            zipcode in row['formatted_address']
+            for zipcode in zipcodes
+        ]) and any([
+            canvass_code in row['code'].lower()
+            for canvass_code in canvass_codes
+        ])
+    return criteria_func
+
+
+def parse_arguments():
+    """ Read in options passed to us via the command line. """
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-n', '--number-of-teams',
+        dest='N', type=int,
+        default=4,
+        help='The number of teams to split up',
+    )
+    parser.add_argument(
+        '-M', '--number-of-merges',
+        dest='num_merges', type=int,
+        default=0,
+        help='Merge the smallest of the teams into one this many times',
+    )
+    parser.add_argument(
+        '-m', '--maximum-team-size',
+        dest='max_team_size', type=int,
+        default=25,
+        help='Limit team size to some maximum number of addresses',
+    )
+    parser.add_argument(
+        '-l', '--latest',
+        dest='latest_foreclosures', type=int,
+        default=100,
+        help='Limit addresses to only the latest so-many foreclosures',
+    )
+    parser.add_argument(
+        '-z', '--zipcodes',
+        dest='zipcodes',
+        default='14621',
+        help='Comma-delimited list of zipcodes we should canvass in',
+    )
+    parser.add_argument(
+        '-c', '--canvass-codes',
+        dest='canvass_codes',
+        default='unvisited,should return',
+        help='Comma-delimited list of "codes" we should visit',
+    )
+
+    return parser.parse_args()
 
 
 def main():
     """ Main entry point.  Read, organize, write. """
 
-    # expect there to be this many teams
-    N = 4
+    # Gather commandline options
+    args = parse_arguments()
 
     rows = gather_rows()
     rows = sorted(rows, lambda b, a: cmp(a['filing_date'], b['filing_date']))
 
     # Throw out rows that are not "unvisited" or whatever.
-    rows = filter(should_be_included, rows)
+    criteria_function = make_criteria_func(args.zipcodes, args.canvass_codes)
+    rows = filter(criteria_function, rows)
 
     # Take only the first 100 properties
-    rows = rows[:100]
+    rows = rows[:args.latest_foreclosures]
 
     # Break into N teams
-    list_of_lists = split_into_groups(rows, N)
+    list_of_lists = split_into_groups(rows, args.N)
     list_of_lists = [lst for lst in list_of_lists if lst]
     print " * Down to", len(list_of_lists), "lists"
 
     # Just get rid of our smallest N teams.
-    num_merges = 0
-    for i in range(num_merges):
+    for i in range(args.num_merges):
         list_of_lists = merge_smallest_into_second_smallest(list_of_lists)
 
     # Sort each team's list travelling salesman style.
     list_of_lists = map(sort_with_tsp, list_of_lists)
 
     # Also limit the teams to *at most* N addresses.
-    list_of_lists = [lst[:MAXIMUM_TEAM_SIZE] for lst in list_of_lists]
+    list_of_lists = [lst[:args.max_team_size] for lst in list_of_lists]
 
     print "Limited to groups like:", map(len, list_of_lists)
 
