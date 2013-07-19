@@ -37,7 +37,7 @@ As it stands now, this program does the following things (in order):
 
 """
 
-import argparse
+import optparse
 import csv
 import math
 import datetime
@@ -240,38 +240,38 @@ def make_criteria_func(zipcodes, canvass_codes):
 
 def parse_arguments():
     """ Read in options passed to us via the command line. """
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
+    parser = optparse.OptionParser()
+    parser.add_option(
         '-n', '--number-of-teams',
         dest='N', type=int,
         default=4,
         help='The number of teams to split up',
     )
-    parser.add_argument(
+    parser.add_option(
         '-M', '--number-of-merges',
         dest='num_merges', type=int,
         default=0,
         help='Merge the smallest of the teams into one this many times',
     )
-    parser.add_argument(
+    parser.add_option(
         '-m', '--maximum-team-size',
         dest='max_team_size', type=int,
         default=25,
         help='Limit team size to some maximum number of addresses',
     )
-    parser.add_argument(
+    parser.add_option(
         '-l', '--latest',
         dest='latest_foreclosures', type=int,
         default=100,
         help='Limit addresses to only the latest so-many foreclosures',
     )
-    parser.add_argument(
+    parser.add_option(
         '-z', '--zipcodes',
         dest='zipcodes',
         default='14621',
         help='Comma-delimited list of zipcodes we should canvass in',
     )
-    parser.add_argument(
+    parser.add_option(
         '-c', '--canvass-codes',
         dest='canvass_codes',
         default='unvisited,should return',
