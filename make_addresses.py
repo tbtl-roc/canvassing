@@ -278,7 +278,8 @@ def parse_arguments():
         help='Comma-delimited list of "codes" we should visit',
     )
 
-    return parser.parse_args()
+    opts, args = parser.parse_args()
+    return opts
 
 
 def main():
